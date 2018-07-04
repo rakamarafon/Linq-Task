@@ -20,7 +20,7 @@ namespace Linq_Task.Services
 
         private List<MainCollection> collection = new List<MainCollection>();
 
-        public DataStructureService(List<Address> addresses, List<Comments> comments, List<Posts> posts, List<Todos> todos, List< Users> users)
+        public DataStructureService(List<Address> addresses, List<Comments> comments, List<Posts> posts, List<Todos> todos, List<Users> users)
         {
             var commentsToPosts = posts.GroupJoin(
                                                    comments,
@@ -28,21 +28,21 @@ namespace Linq_Task.Services
                                                    c => c.postId,
                                                    (pst, com) => new
                                                    {
-                                                        Id = pst.id,
-                                                        CreadetAt = pst.createdAt,
-                                                        Title = pst.title,
-                                                        Body = pst.body,
-                                                        UserId = pst.userId,
-                                                        Likes = pst.likes,
-                                                        PComments = com.Select(c => new
-                                                        {
-                                                            Id = c.id,
-                                                            CreadetAt = c.createdAt,
-                                                            Body = c.body,
-                                                            UserId = c.userId,
-                                                            PostId = c.postId,
-                                                            Likes = c.likes
-                                                        })
+                                                       Id = pst.id,
+                                                       CreadetAt = pst.createdAt,
+                                                       Title = pst.title,
+                                                       Body = pst.body,
+                                                       UserId = pst.userId,
+                                                       Likes = pst.likes,
+                                                       PComments = com.Select(c => new
+                                                       {
+                                                           Id = c.id,
+                                                           CreadetAt = c.createdAt,
+                                                           Body = c.body,
+                                                           UserId = c.userId,
+                                                           PostId = c.postId,
+                                                           Likes = c.likes
+                                                       })
                                                    }
                                                    );
 
@@ -93,40 +93,51 @@ namespace Linq_Task.Services
 
             foreach (var item in UsersWithPostsCommentsTodos)
             {
-                MainCollection temp = new MainCollection() {Uid = item.Uid, CreatedAt = item.CreatedAt, Name = item.Name, Avatar = item.Avatar, Email = item.Email, PComments = item.PComments, UPost = item.UPosts };
+                MainCollection temp = new MainCollection() { Uid = item.Uid, CreatedAt = item.CreatedAt, Name = item.Name, Avatar = item.Avatar, Email = item.Email, PComments = item.PComments, UPost = item.UPosts };
                 collection.Add(temp);
-
             }
-            
+
         }
-        public IEnumerable<(Posts, int)> GetCommentsCountByUserPosts(int user_id, List<Posts> posts, List<Comments> comments)
+        public IEnumerable<(Posts, int)> GetCommentsCountByUserPosts(int user_id)
         {
-            var post = posts.FindAll(x => x.userId == user_id);
-            var count = (from com in comments
-                         join pst in post on com.postId equals pst.id
-                         select com).Count();
-            return null;
+            var temp = from c in collection
+                        from post in c.UPost
+                        where c.Uid == user_id
+                        select (post, c.PComments.Where(x => x.postId == post.id).Count());
+            return temp;
+        }
+        public IEnumerable<Comments> GetCommentsByUserIdWhenCommentBodyMoreThanDefault(int user_id, int byDefault = 50)
+        {
+            var temp = collection.SelectMany(x => x.PComments.Where(y => y.userId == user_id && y.body.Count() >= byDefault));
+            return temp;
         }
         public IEnumerable<(int, string)> DoneTodosForUser(int id, List<Todos> todos)
         {
-            return  from x in todos
-                    where x.userId == id && x.isComplete == true
-                    select (UserId : x.userId, UserName : x.name);
+            return from x in todos
+                   where x.userId == id && x.isComplete == true
+                   select (UserId: x.userId, UserName: x.name);
+        }
+       
+        public IEnumerable<(string, Posts, int, Posts, Posts)> GetStructureUser(int user_id)
+        {
+
+            var temp = from c in collection
+                       let LatestPost = c.UPost.OrderByDescending(x => x.createdAt).FirstOrDefault()
+                       let PostWithBodyLength = c.UPost.Where(x => x.body.Length < 80)
+                       where c.Uid == user_id
+                       select (c.Name, LatestPost, c.PComments.Count(x => x.postId == LatestPost.id), PostWithBodyLength.OrderByDescending(x => x.likes).Max(), c.UPost.OrderByDescending(x => x.likes).Max());
+            return temp;
         }
 
-        public List<Comments> GetCommentsByUserIdWhenCommentBodyMoreThanDefault(int byDefault = 50)
+        public IEnumerable<(Posts, Comments, int, int)> GetStructurePost(int post_id)
         {
-            throw new NotImplementedException();
-        }        
-
-        public (string, string, string, int) GetMostPopularPost(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public (string, string, int, int, string, string) GetStructureUser(int id)
-        {
-            throw new NotImplementedException();
+            var temp = from c in collection
+                       let Post = c.UPost.Single(x => x.id == post_id)
+                       let MostLengthComment = c.PComments.Single(x => x.id == Post.id)
+                       let MostLiked = c.PComments.Max(x => x.likes)
+                       let Cnt = c.PComments.Count(x => x.id == Post.id || x.body.Length < 80)                       
+                       select (Post, MostLengthComment, MostLiked, Cnt);
+            return temp;
         }
     }
 }
