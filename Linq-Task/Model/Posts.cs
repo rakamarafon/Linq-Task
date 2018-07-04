@@ -6,7 +6,7 @@ namespace Linq_Task
 {
     public class Posts
     {
-    public string id { get; set; }
+    public int id { get; set; }
     public DateTime createdAt { get; set; }
     public string title { get; set; }
     public string body { get; set; }

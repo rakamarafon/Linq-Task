@@ -6,7 +6,7 @@ namespace Linq_Task
 {
     public class Todos
     {
-    public string id { get; set; }
+    public int id { get; set; }
     public DateTime createdAt { get; set; }
     public string name { get; set; }
     public bool isComplete { get; set; }

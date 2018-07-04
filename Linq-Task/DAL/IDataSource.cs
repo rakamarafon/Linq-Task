@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Linq_Task.DAL
 {
-    interface IHttpDataSource
+    interface IDataSource
     {
         List<Users> GetUsersList();
         List<Posts> GetPostsList();

@@ -5,7 +5,7 @@ using System.Net.Http;
 
 namespace Linq_Task.DAL
 {
-    public class HttpDataSource : IHttpDataSource
+    public class HttpDataSource : IDataSource
     {
         private string GrabResponce(string endpoint)
         {

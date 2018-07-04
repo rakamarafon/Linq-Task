@@ -6,7 +6,7 @@ namespace Linq_Task
 {
     public class Address
     {
-    public string id { get; set; }
+    public int id { get; set; }
     public string country { get; set; }
     public string city { get; set; }
     public string street { get; set; }
