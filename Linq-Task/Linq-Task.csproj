@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DAL\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
