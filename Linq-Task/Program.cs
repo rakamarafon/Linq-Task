@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Linq_Task.DAL;
+using System;
+using System.Collections.Generic;
 
 namespace Linq_Task
 {
@@ -6,7 +8,7 @@ namespace Linq_Task
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+           
         }
     }
 }
